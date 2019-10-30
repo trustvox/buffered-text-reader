@@ -1,0 +1,19 @@
+{
+  "name": "buffered-text-reader",
+  "version": "1.0.0",
+  "description": "Extract text file's content in a buffered approach ",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/trustvox/buffered-text-reader.git"
+  },
+  "author": "Gabriel Custódio <gabriel.martins@reclameaqui.com.br>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/trustvox/buffered-text-reader/issues"
+  },
+  "homepage": "https://github.com/trustvox/buffered-text-reader#readme"
+}
