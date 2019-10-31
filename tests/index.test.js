@@ -24,6 +24,7 @@ test("Reaches EOL", async () => {
   const line = "lorem ipsum";
   const file = new File([line], "f.txt");
   const bufferedReader = new BufferedReader(file);
+  const got = await bufferedReader.readLine();
 
   expect(bufferedReader.isEOL()).toBeFalsy();
   await bufferedReader.readLine();
