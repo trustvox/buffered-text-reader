@@ -1,6 +1,8 @@
 export default class BufferedReader {
   constructor(file) {
-    this.file = file;
+    this._file = file;
+    this._cursor = 0;
+    this._isEOL = false;
   }
 
   readLine = (chunkSize = 1024) => {
@@ -10,24 +12,31 @@ export default class BufferedReader {
       );
     }
 
-    return this._read("\n", chunkSize, 0, "");
+    return this._read("\n", chunkSize, "");
   };
 
-  _read = async (delimiter, chunkSize, offset, memo) => {
+  isEOL = () => this._isEOL;
+
+  _read = async (delimiter, chunkSize, memo) => {
     // read a file chunk
-    const { err, bytesRead, buffer } = await this._readChunk(offset, chunkSize);
+    const { err, buffer } = await this._readChunk(chunkSize);
 
     if (err) throw err;
 
     const chunk = this._parse(buffer, delimiter);
+
+    const bytesRead = chunk.length;
+    this._updateCursor(bytesRead);
 
     // if we found the expected delimiter
     if (chunk.charAt(chunk.length - 1) === delimiter) {
       return memo + chunk.slice(0, -1);
     }
 
-    // if reached eof
+    // if reached EOF
     if (bytesRead < chunkSize) {
+      this._isEOL = true;
+
       return memo + chunk;
     }
 
@@ -35,36 +44,31 @@ export default class BufferedReader {
 
     // If we achieved a certain recursion deepness and don't find the expected
     // delimiter, throw an error
-    if (offset > threshold) {
+    if (this._cursor > threshold) {
       throw `Unable to find delimiter: ${JSON.stringify(delimiter)}`;
     }
 
     // otherwise, keep searching
-    return await this._read(
-      delimiter,
-      chunkSize,
-      offset + chunkSize,
-      memo + chunk
-    );
+    return await this._read(delimiter, chunkSize, memo + chunk);
   };
 
-  _readChunk = (offset, size) => {
+  _readChunk = size => {
     const reader = new FileReader();
-    const promise = new Promise((resolve, reject) => {
-      reader.onloadend = function(progress) {
+
+    return new Promise(resolve => {
+      reader.onloadend = progress => {
         const buffer = reader.result ? new Int8Array(reader.result, 0) : null;
 
         return resolve({
           err: progress.err,
-          bytesRead: progress.loaded,
           buffer
         });
       };
 
-      reader.readAsArrayBuffer(this.file.slice(offset, offset + size));
+      reader.readAsArrayBuffer(
+        this._file.slice(this._cursor, this._cursor + size)
+      );
     });
-
-    return promise;
   };
 
   _parse = (buffer, delimiter) => {
@@ -79,4 +83,8 @@ export default class BufferedReader {
 
     return output;
   };
+
+  _updateCursor(chunkSize) {
+    this._cursor += chunkSize;
+  }
 }

@@ -1,32 +1,57 @@
 import BufferedReader from "../src/index.js";
 
-test("Empty line ending file", () => {
+test("Empty line ending file", async () => {
   const line = "lorem ipsum";
   const file = new File([`${line}\n`], "f.txt");
   const bufferedReader = new BufferedReader(file);
+  const got = await bufferedReader.readLine();
 
-  bufferedReader.readLine().then(readLine => expect(readLine).toEqual(line));
+  expect(got).toEqual(line);
 });
 
-test("Non empty line ending file", () => {
+test("Reads consecutive lines", async () => {
+  const expected = "lorem ipsum";
+  const file = new File([`foo bar\n${expected}`], "f.txt");
+  const bufferedReader = new BufferedReader(file);
+
+  await bufferedReader.readLine(); // discart first line
+  const got = await bufferedReader.readLine();
+
+  expect(got).toEqual(expected);
+});
+
+test("Reaches EOL", async () => {
   const line = "lorem ipsum";
   const file = new File([line], "f.txt");
   const bufferedReader = new BufferedReader(file);
 
-  bufferedReader.readLine().then(readLine => expect(readLine).toEqual(line));
+  expect(bufferedReader.isEOL()).toBeFalsy();
+  await bufferedReader.readLine();
+  expect(bufferedReader.isEOL()).toBeTruthy();
 });
 
-test("Throws an error when expected smaller line lenght", () => {
+test("Non empty line ending file", async () => {
+  const line = "lorem ipsum";
+  const file = new File([line], "f.txt");
+  const bufferedReader = new BufferedReader(file);
+  const got = await bufferedReader.readLine();
+
+  expect(got).toEqual(line);
+});
+
+test("Throws an error when expected smaller line lenght", async () => {
   const longLine = "foo".repeat(100);
   const file = new File([longLine], "f.txt");
   const bufferedReader = new BufferedReader(file);
 
-  bufferedReader.readLine(1).catch(e => expect(e).toMatch("error"));
+  await expect(bufferedReader.readLine(1)).rejects.toContain(
+    "Unable to find delimiter"
+  );
 });
 
-test("Throws an error when providing invalid chunk size", () => {
+test("Throws an error when providing invalid chunk size", async () => {
   const file = new File([], "f.txt");
   const bufferedReader = new BufferedReader(file);
 
-  bufferedReader.readLine(0).catch(e => expect(e).toMatch("error"));
+  await expect(bufferedReader.readLine(0)).rejects.toContain("chunkSize");
 });
