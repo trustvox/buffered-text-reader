@@ -1,0 +1,14 @@
+{
+  "extends": ["airbnb/base", "prettier"],
+  "plugins": ["prettier", "jest"],
+  "parser": "babel-eslint",
+  "env": {
+    "browser": true,
+    "node": true,
+    "jest/globals": true
+  },
+  "rules": {
+    "prettier/prettier": ["error"],
+    "no-underscore-dangle": ["error", { "allowAfterThis": true }]
+  }
+}

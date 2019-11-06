@@ -8,7 +8,7 @@ export default class BufferedReader {
   readLine = (chunkSize = 1024) => {
     if (chunkSize === 0) {
       return Promise.reject(
-        `chunkSize should be greater than 0, got ${chunkSize}`
+        new Error(`chunkSize should be greater than 0, got ${chunkSize}`)
       );
     }
 
@@ -45,15 +45,15 @@ export default class BufferedReader {
     // If we achieved a certain recursion deepness and don't find the expected
     // delimiter, throw an error
     if (this._cursor > threshold) {
-      throw `Unable to find delimiter: ${JSON.stringify(delimiter)}`;
+      throw new Error(`Unable to find delimiter: ${JSON.stringify(delimiter)}`);
     }
 
     // otherwise, keep searching
-    return await this._read(delimiter, chunkSize, memo + chunk);
+    return this._read(delimiter, chunkSize, memo + chunk);
   };
 
   _readChunk = size => {
-    const reader = new FileReader();
+    const reader = new window.FileReader();
 
     return new Promise(resolve => {
       reader.onloadend = progress => {
@@ -73,12 +73,12 @@ export default class BufferedReader {
 
   _parse = (buffer, delimiter) => {
     let output = "";
+    const delimiterCode = delimiter.charCodeAt(0);
 
-    delimiter = delimiter.charCodeAt(0);
     buffer.some(code => {
       output += String.fromCharCode(code);
 
-      return code === delimiter;
+      return code === delimiterCode;
     });
 
     return output;
