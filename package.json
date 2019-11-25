@@ -2,11 +2,12 @@
   "name": "buffered-text-reader",
   "version": "1.0.0",
   "description": "Extract text file's content in a buffered approach ",
-  "main": "index.js",
+  "main": "lib/index.js",
   "scripts": {
     "build": "babel src -d lib",
     "test": "jest",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "prepack": "npm run build"
   },
   "jest": {
     "transform": {
