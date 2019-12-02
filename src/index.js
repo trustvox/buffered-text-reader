@@ -1,3 +1,5 @@
+import { TextDecoder } from "text-encoding";
+
 export default class BufferedReader {
   constructor(file) {
     this._file = file;
@@ -23,14 +25,14 @@ export default class BufferedReader {
 
     if (err) throw err;
 
-    const chunk = this._parse(buffer, delimiter);
+    const [chunk, tail] = this._parse(buffer, delimiter);
 
     const bytesRead = chunk.length;
-    this._updateCursor(bytesRead);
+    this._updateCursor(bytesRead, tail != null);
 
     // if we found the expected delimiter
-    if (chunk.charAt(chunk.length - 1) === delimiter) {
-      return memo + chunk.slice(0, -1);
+    if (tail != null) {
+      return memo + chunk;
     }
 
     // if reached EOF
@@ -72,19 +74,10 @@ export default class BufferedReader {
   };
 
   _parse = (buffer, delimiter) => {
-    let output = "";
-    const delimiterCode = delimiter.charCodeAt(0);
-
-    buffer.some(code => {
-      output += String.fromCharCode(code);
-
-      return code === delimiterCode;
-    });
-
-    return output;
+    return new TextDecoder().decode(buffer).split(delimiter);
   };
 
-  _updateCursor(chunkSize) {
-    this._cursor += chunkSize;
+  _updateCursor(chunkSize, skipSeparator) {
+    this._cursor += chunkSize + (skipSeparator ? 1 : 0);
   }
 }

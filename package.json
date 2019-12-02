@@ -1,6 +1,6 @@
 {
   "name": "buffered-text-reader",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Extract text file's content in a buffered approach ",
   "main": "lib/index.js",
   "scripts": {
@@ -41,5 +41,8 @@
     "eslint-plugin-prettier": "^3.1.1",
     "jest": "^24.9.0",
     "prettier": "^1.18.2"
+  },
+  "dependencies": {
+    "text-encoding": "^0.7.0"
   }
 }

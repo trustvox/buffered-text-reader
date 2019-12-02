@@ -10,14 +10,13 @@ test("Empty line ending file", async () => {
 });
 
 test("Reads consecutive lines", async () => {
-  const expected = "lorem ipsum";
-  const file = new File([`foo bar\n${expected}`], "f.txt");
+  const lineOne = "lorem ipsum";
+  const lineTwo = "dolor sit amet";
+  const file = new File([`${lineOne}\n${lineTwo}`], "f.txt");
   const bufferedReader = new BufferedReader(file);
 
-  await bufferedReader.readLine(); // discard first line
-  const got = await bufferedReader.readLine();
-
-  expect(got).toEqual(expected);
+  expect(await bufferedReader.readLine()).toEqual(lineOne);
+  expect(await bufferedReader.readLine()).toEqual(lineTwo);
 });
 
 test("Reaches EOL", async () => {
@@ -39,7 +38,7 @@ test("Non empty line ending file", async () => {
   expect(got).toEqual(line);
 });
 
-test("Throws an error when expected smaller line lenght", async () => {
+test("Throws an error when expected smaller line length", async () => {
   const longLine = "foo".repeat(100);
   const file = new File([longLine], "f.txt");
   const bufferedReader = new BufferedReader(file);
@@ -52,4 +51,13 @@ test("Throws an error when providing invalid chunk size", async () => {
   const bufferedReader = new BufferedReader(file);
 
   await expect(bufferedReader.readLine(0)).rejects.toThrow();
+});
+
+test("Parses latin content", async () => {
+  const expected = "áàãç";
+  const file = new File([expected], "f.txt");
+  const bufferedReader = new BufferedReader(file);
+  const got = await bufferedReader.readLine();
+
+  expect(got).toEqual(expected);
 });
